@@ -8,8 +8,8 @@ dependencies = [
     "anthropic>=0.40.0",
     "azure-cognitiveservices-speech>=1.41.1",
     "chardet>=5.2.0",
-    "cartesia>=2.0.0", 
-    "edge-tts>=7.0.0",
+    "cartesia>=2.0.0",
+    "edge-tts>=7.2.8",
     "elevenlabs>=1.0.0",
     "fastapi[standard]>=0.115.8",
     "groq>=0.13.0",
@@ -40,6 +40,7 @@ dependencies = [
     "websocket-client>=1.8.0",
     "letta-client>=0.1.100",
     "duckduckgo-mcp-server>=0.1.1",
+    "tzdata>=2025.2",
 ]
 
 [project.optional-dependencies]
@@ -66,3 +67,8 @@ target-version = "py310"
 [tool.ruff.lint]
 # Ignore E402 (module level import not at top of file) for the run_bilibili_live.py script
 per-file-ignores = { "scripts/run_bilibili_live.py" = ["E402"] }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+]

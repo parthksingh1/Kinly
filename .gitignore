@@ -76,3 +76,7 @@ private/
 mcp_servers.json
 
 .vscode/
+# Kinly local data (shared SQLite database, uploaded voice messages and avatar files)
+/data/
+conf.yaml.backup
+*.db-journal
