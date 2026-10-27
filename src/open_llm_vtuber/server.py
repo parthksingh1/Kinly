@@ -17,6 +17,7 @@ from starlette.staticfiles import StaticFiles as StarletteStaticFiles
 from .routes import init_client_ws_route, init_webtool_routes, init_proxy_route
 from .service_context import ServiceContext
 from .config_manager.utils import Config
+from ..kinly.api import init_kinly_routes, on_startup as kinly_on_startup
 
 
 # Create a custom StaticFiles class that adds CORS headers
@@ -72,7 +73,7 @@ class WebSocketServer:
     """
 
     def __init__(self, config: Config, default_context_cache: ServiceContext = None):
-        self.app = FastAPI(title="Open-LLM-VTuber Server")  # Added title for clarity
+        self.app = FastAPI(title="Kinly companion server (built on Open-LLM-VTuber)")
         self.config = config
         self.default_context_cache = (
             default_context_cache or ServiceContext()
@@ -96,6 +97,13 @@ class WebSocketServer:
         self.app.include_router(
             init_webtool_routes(default_context_cache=self.default_context_cache),
         )
+
+        # Kinly: OpenAI compatible endpoint for Bolna, webhooks and the family app's internal API
+        self.app.include_router(init_kinly_routes())
+
+        @self.app.on_event("startup")
+        async def _kinly_startup():
+            await kinly_on_startup(self.default_context_cache.tts_engine)
 
         # Initialize and include proxy routes if proxy is enabled
         system_config = config.system_config
