@@ -17,6 +17,7 @@ from .types import WebSocketSend
 from .tts_manager import TTSTaskManager
 from ..chat_history_manager import store_message
 from ..service_context import ServiceContext
+from ...kinly.turn_context import turn_context
 
 # Import necessary types from agent outputs
 from ..agent.output_types import SentenceOutput, AudioOutput
@@ -48,6 +49,7 @@ async def process_single_conversation(
     # Create TTSTaskManager for this conversation
     tts_manager = TTSTaskManager()
     full_response = ""  # Initialize full_response here
+    turn_context.begin(client_uid)
 
     try:
         # Send initial signals
@@ -98,6 +100,12 @@ async def process_single_conversation(
                     output_item["name"] = context.character_config.character_name
                     logger.debug(f"Sending tool status update: {output_item}")
 
+                    await websocket_send(json.dumps(output_item))
+
+                elif isinstance(output_item, dict) and str(
+                    output_item.get("type", "")
+                ).startswith("kinly-"):
+                    # Kinly UI actions (start a video call, play messages...)
                     await websocket_send(json.dumps(output_item))
 
                 elif isinstance(output_item, (SentenceOutput, AudioOutput)):

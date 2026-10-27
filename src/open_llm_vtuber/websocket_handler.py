@@ -22,6 +22,9 @@ from .chat_history_manager import (
     get_history_list,
 )
 from .config_manager.utils import scan_config_alts_directory, scan_bg_directory
+from ..kinly.hub import hub as kinly_hub
+from ..kinly.agent import end_screen_session
+from ..kinly import screen as kinly_screen
 from .conversations.conversation_handler import (
     handle_conversation_trigger,
     handle_group_interrupt,
@@ -95,6 +98,9 @@ class WebSocketHandler:
             "audio-play-start": self._handle_audio_play_start,
             "request-init-config": self._handle_init_config_request,
             "heartbeat": self._handle_heartbeat,
+            # Kinly elder screen
+            "kinly-hello": self._handle_kinly_hello,
+            "kinly-end-session": self._handle_kinly_end_session,
         }
 
     async def handle_new_connection(
@@ -296,6 +302,10 @@ class WebSocketHandler:
             client_connections=self.client_connections,
             send_group_update=self.send_group_update,
         )
+
+        # Kinly: close the elder's conversation (memory, summary, family update)
+        kinly_hub.unregister(client_uid)
+        asyncio.create_task(end_screen_session(client_uid))
 
         # Clean up other client data
         self.client_connections.pop(client_uid, None)
@@ -610,3 +620,17 @@ class WebSocketHandler:
             await websocket.send_json({"type": "heartbeat-ack"})
         except Exception as e:
             logger.error(f"Error sending heartbeat acknowledgment: {e}")
+
+    async def _handle_kinly_hello(
+        self, websocket: WebSocket, client_uid: str, data: WSMessage
+    ) -> None:
+        """Kinly: an elder screen identifies itself with its pairing token."""
+        reply = kinly_screen.hello(client_uid, data.get("screen_token", ""), websocket.send_text)
+        await websocket.send_text(json.dumps(reply))
+
+    async def _handle_kinly_end_session(
+        self, websocket: WebSocket, client_uid: str, data: WSMessage
+    ) -> None:
+        """Kinly: the elder pressed "Done" or the screen went idle; wrap up the conversation."""
+        await end_screen_session(client_uid)
+        await websocket.send_text(json.dumps({"type": "kinly-session-ended"}))

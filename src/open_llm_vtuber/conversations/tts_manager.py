@@ -11,6 +11,7 @@ from ..live2d_model import Live2dModel
 from ..tts.tts_interface import TTSInterface
 from ..utils.stream_audio import prepare_audio_payload
 from .types import WebSocketSend
+from ...kinly.turn_context import turn_context
 
 
 class TTSTaskManager:
@@ -106,6 +107,8 @@ class TTSTaskManager:
                 while self._next_sequence_to_send in buffered_payloads:
                     next_payload = buffered_payloads.pop(self._next_sequence_to_send)
                     await websocket_send(json.dumps(next_payload))
+                    if next_payload.get("audio"):
+                        turn_context.mark_first_audio()
                     self._next_sequence_to_send += 1
 
                 self._payload_queue.task_done()

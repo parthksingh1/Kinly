@@ -128,5 +128,15 @@ class AgentFactory:
                 port=settings.get("port"),
             )
 
+        elif conversation_agent_choice == "kinly_agent":
+            from ...kinly.agent import KinlyAgent
+
+            settings = agent_settings.get("kinly_agent") or {}
+            return KinlyAgent(
+                live2d_model=live2d_model,
+                faster_first_response=settings.get("faster_first_response", True),
+                segment_method=settings.get("segment_method", "regex"),
+            )
+
         else:
             raise ValueError(f"Unsupported agent type: {conversation_agent_choice}")

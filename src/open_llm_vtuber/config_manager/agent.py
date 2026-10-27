@@ -172,6 +172,20 @@ class LettaConfig(I18nMixin, BaseModel):
     }
 
 
+class KinlyAgentConfig(I18nMixin, BaseModel):
+    """Configuration for the Kinly companion agent (LLM settings come from env)."""
+
+    faster_first_response: Optional[bool] = Field(True, alias="faster_first_response")
+    segment_method: Literal["regex", "pysbd"] = Field("regex", alias="segment_method")
+
+    DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
+        "faster_first_response": Description(
+            en="Speak as soon as the first clause is ready", zh="首句更快响应"
+        ),
+        "segment_method": Description(en="Sentence segmentation method", zh="分句方法"),
+    }
+
+
 class AgentSettings(I18nMixin, BaseModel):
     """Settings for different types of agents."""
 
@@ -181,6 +195,7 @@ class AgentSettings(I18nMixin, BaseModel):
     mem0_agent: Optional[Mem0Config] = Field(None, alias="mem0_agent")
     hume_ai_agent: Optional[HumeAIConfig] = Field(None, alias="hume_ai_agent")
     letta_agent: Optional[LettaConfig] = Field(None, alias="letta_agent")
+    kinly_agent: Optional[KinlyAgentConfig] = Field(None, alias="kinly_agent")
 
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
         "basic_memory_agent": Description(
@@ -200,7 +215,7 @@ class AgentConfig(I18nMixin, BaseModel):
     """This class contains all of the configurations related to agent."""
 
     conversation_agent_choice: Literal[
-        "basic_memory_agent", "mem0_agent", "hume_ai_agent", "letta_agent"
+        "basic_memory_agent", "mem0_agent", "hume_ai_agent", "letta_agent", "kinly_agent"
     ] = Field(..., alias="conversation_agent_choice")
     agent_settings: AgentSettings = Field(..., alias="agent_settings")
     llm_configs: StatelessLLMConfigs = Field(..., alias="llm_configs")

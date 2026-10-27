@@ -14,6 +14,7 @@ from .single_conversation import process_single_conversation
 from .conversation_utils import EMOJI_LIST
 from .types import GroupConversationState
 from prompts import prompt_loader
+from ...kinly.hub import hub as kinly_hub
 
 
 async def handle_conversation_trigger(
@@ -67,6 +68,13 @@ async def handle_conversation_trigger(
     else:  # mic-audio-end
         user_input = received_data_buffers[client_uid]
         received_data_buffers[client_uid] = np.array([])
+
+    # Kinly: tell the agent which elder and which screen session this turn belongs to
+    metadata = {
+        **(metadata or {}),
+        "client_uid": client_uid,
+        "elder_id": kinly_hub.elder_for(client_uid),
+    }
 
     images = data.get("images")
     session_emoji = np.random.choice(EMOJI_LIST)
