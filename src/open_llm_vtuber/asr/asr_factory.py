@@ -58,5 +58,28 @@ class ASRFactory:
             from .sherpa_onnx_asr import VoiceRecognition as SherpaOnnxASR
 
             return SherpaOnnxASR(**kwargs)
+        elif system_name == "deepgram_asr":
+            from .deepgram_asr import VoiceRecognition as DeepgramASR
+
+            return DeepgramASR(
+                api_key=kwargs.get("api_key"),
+                model=kwargs.get("model", "nova-3"),
+                detect_languages=kwargs.get("detect_languages"),
+            )
+        elif system_name == "sarvam_asr":
+            from .sarvam_asr import VoiceRecognition as SarvamASR
+
+            return SarvamASR(
+                api_key=kwargs.get("api_key"),
+                model=kwargs.get("model", "saaras:v4"),
+                language_code=kwargs.get("language_code", "unknown"),
+            )
+        elif system_name == "kinly_router_asr":
+            from ...kinly.language_router import RouterASR
+
+            return RouterASR(
+                deepgram_model=kwargs.get("deepgram_model", "nova-3"),
+                sarvam_model=kwargs.get("sarvam_model", "saaras:v4"),
+            )
         else:
             raise ValueError(f"Unknown ASR system: {system_name}")

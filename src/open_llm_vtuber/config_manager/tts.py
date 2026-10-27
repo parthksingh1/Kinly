@@ -680,6 +680,42 @@ class CartesiaTTSConfig(I18nMixin):
     }
 
 
+class SarvamTTSConfig(I18nMixin):
+    """Configuration for Sarvam AI TTS (Bulbul) for Indian languages."""
+
+    api_key: str = Field(..., alias="api_key")
+    model: str = Field("bulbul:v3", alias="model")
+    speaker: str = Field("priya", alias="speaker")
+    language_code: str = Field("hi-IN", alias="language_code")
+    pace: float = Field(0.9, alias="pace")
+
+    DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
+        "api_key": Description(en="Sarvam API subscription key", zh="Sarvam API 密钥"),
+        "model": Description(en="Sarvam TTS model, e.g. bulbul:v3", zh="Sarvam TTS 模型"),
+        "speaker": Description(en="Speaker voice name", zh="说话人"),
+        "language_code": Description(en="Default BCP-47 language, e.g. hi-IN", zh="默认语言"),
+        "pace": Description(en="Speaking pace (0.5 - 2.0)", zh="语速"),
+    }
+
+
+class KinlyRouterTTSConfig(I18nMixin):
+    """Kinly LanguageRouter TTS: Sarvam for Indian languages, Cartesia for global, Edge TTS fallback."""
+
+    cartesia_voice_id: str = Field("", alias="cartesia_voice_id")
+    cartesia_model: str = Field("sonic-3", alias="cartesia_model")
+    sarvam_speaker: str = Field("priya", alias="sarvam_speaker")
+    sarvam_model: str = Field("bulbul:v3", alias="sarvam_model")
+    speech_rate: Optional[float] = Field(None, alias="speech_rate")
+
+    DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
+        "cartesia_voice_id": Description(en="Cartesia voice id (env CARTESIA_VOICE_ID if empty)", zh="Cartesia 声音"),
+        "cartesia_model": Description(en="Cartesia model", zh="Cartesia 模型"),
+        "sarvam_speaker": Description(en="Sarvam speaker", zh="Sarvam 说话人"),
+        "sarvam_model": Description(en="Sarvam model", zh="Sarvam 模型"),
+        "speech_rate": Description(en="Speaking rate for elders (default env KINLY_SPEECH_RATE=0.9)", zh="语速"),
+    }
+
+
 class TTSConfig(I18nMixin):
     """Configuration for Text-to-Speech."""
 
@@ -702,7 +738,13 @@ class TTSConfig(I18nMixin):
         "elevenlabs_tts",
         "cartesia_tts",
         "piper_tts",
+        "sarvam_tts",
+        "kinly_router_tts",
     ] = Field(..., alias="tts_model")
+    sarvam_tts: Optional[SarvamTTSConfig] = Field(None, alias="sarvam_tts")
+    kinly_router_tts: Optional[KinlyRouterTTSConfig] = Field(
+        KinlyRouterTTSConfig(), alias="kinly_router_tts"
+    )
 
     azure_tts: Optional[AzureTTSConfig] = Field(None, alias="azure_tts")
     bark_tts: Optional[BarkTTSConfig] = Field(None, alias="bark_tts")

@@ -1,6 +1,6 @@
 # config_manager/asr.py
 from pydantic import ValidationInfo, Field, model_validator
-from typing import Literal, Optional, Dict, ClassVar
+from typing import List, Literal, Optional, Dict, ClassVar
 from .i18n import I18nMixin, Description
 
 
@@ -307,6 +307,48 @@ class SherpaOnnxASRConfig(I18nMixin):
         return values
 
 
+class DeepgramASRConfig(I18nMixin):
+    """Configuration for Deepgram ASR (pre-recorded API with language detection)."""
+
+    api_key: str = Field(..., alias="api_key")
+    model: str = Field("nova-3", alias="model")
+    detect_languages: Optional[List[str]] = Field(None, alias="detect_languages")
+
+    DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
+        "api_key": Description(en="Deepgram API key", zh="Deepgram API 密钥"),
+        "model": Description(en="Deepgram model, e.g. nova-3", zh="Deepgram 模型"),
+        "detect_languages": Description(
+            en="Restrict language detection to these codes (empty = any)", zh="限制语言检测范围"
+        ),
+    }
+
+
+class SarvamASRConfig(I18nMixin):
+    """Configuration for Sarvam AI ASR (Indian languages)."""
+
+    api_key: str = Field(..., alias="api_key")
+    model: str = Field("saaras:v4", alias="model")
+    language_code: str = Field("unknown", alias="language_code")
+
+    DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
+        "api_key": Description(en="Sarvam API subscription key", zh="Sarvam API 密钥"),
+        "model": Description(en="Sarvam STT model, e.g. saaras:v4", zh="Sarvam 模型"),
+        "language_code": Description(en="BCP-47 code, or 'unknown' to auto-detect", zh="语言代码"),
+    }
+
+
+class KinlyRouterASRConfig(I18nMixin):
+    """Kinly LanguageRouter: Sarvam for Indian languages, Deepgram for global ones. Keys come from env."""
+
+    deepgram_model: str = Field("nova-3", alias="deepgram_model")
+    sarvam_model: str = Field("saaras:v4", alias="sarvam_model")
+
+    DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
+        "deepgram_model": Description(en="Deepgram model for global languages", zh="Deepgram 模型"),
+        "sarvam_model": Description(en="Sarvam model for Indian languages", zh="Sarvam 模型"),
+    }
+
+
 class ASRConfig(I18nMixin):
     """Configuration for Automatic Speech Recognition."""
 
@@ -318,7 +360,15 @@ class ASRConfig(I18nMixin):
         "fun_asr",
         "groq_whisper_asr",
         "sherpa_onnx_asr",
+        "deepgram_asr",
+        "sarvam_asr",
+        "kinly_router_asr",
     ] = Field(..., alias="asr_model")
+    deepgram_asr: Optional[DeepgramASRConfig] = Field(None, alias="deepgram_asr")
+    sarvam_asr: Optional[SarvamASRConfig] = Field(None, alias="sarvam_asr")
+    kinly_router_asr: Optional[KinlyRouterASRConfig] = Field(
+        KinlyRouterASRConfig(), alias="kinly_router_asr"
+    )
     azure_asr: Optional[AzureASRConfig] = Field(None, alias="azure_asr")
     faster_whisper: Optional[FasterWhisperConfig] = Field(None, alias="faster_whisper")
     whisper_cpp: Optional[WhisperCPPConfig] = Field(None, alias="whisper_cpp")

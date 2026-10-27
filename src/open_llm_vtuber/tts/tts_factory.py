@@ -198,6 +198,26 @@ class TTSFactory:
                 volume=kwargs.get("volume", 1.0),
                 speed=kwargs.get("speed", 1.0),
             )
+        elif engine_type == "sarvam_tts":
+            from .sarvam_tts import TTSEngine as SarvamTTSEngine
+
+            return SarvamTTSEngine(
+                api_key=kwargs.get("api_key"),
+                model=kwargs.get("model", "bulbul:v3"),
+                speaker=kwargs.get("speaker", "priya"),
+                language_code=kwargs.get("language_code", "hi-IN"),
+                pace=kwargs.get("pace", 0.9),
+            )
+        elif engine_type == "kinly_router_tts":
+            from ...kinly.language_router import RouterTTS
+
+            return RouterTTS(
+                cartesia_voice_id=kwargs.get("cartesia_voice_id", ""),
+                cartesia_model=kwargs.get("cartesia_model", "sonic-3"),
+                sarvam_speaker=kwargs.get("sarvam_speaker", "priya"),
+                sarvam_model=kwargs.get("sarvam_model", "bulbul:v3"),
+                speech_rate=kwargs.get("speech_rate"),
+            )
         elif engine_type == "piper_tts":
             from .piper_tts import TTSEngine as PiperTTSEngine
 
