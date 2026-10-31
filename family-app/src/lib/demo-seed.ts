@@ -236,5 +236,58 @@ export async function resetDemo(db: PrismaClient, opts: { elderPhone?: string; f
       { familyId: family.id, actorUserId: arjun.id, action: "plan_activated", detail: JSON.stringify({ plan: "premium", provider: "demo" }), createdAt: istDate(15, "09:10", now) },
     ],
   });
+  await seedPilotFamilies(db, now);
   return { family, elder, arjun, riya };
+}
+
+// Pilot families: usage history across languages and time zones (feeds the metrics page).
+const PILOTS = [
+  { name: "Rosa Martínez", pref: "Rosa", lang: "es", tz: "America/Chicago", city: "San Antonio", gender: "female", topics: ["Family", "Faith & festivals", "Food & cooking"] },
+  { name: "Ramesh Iyer", pref: "Ramesh", lang: "ta,en", tz: "Asia/Kolkata", city: "Chennai", gender: "male", topics: ["Music", "Memories", "Walks & exercise"] },
+  { name: "Margaret Lee", pref: "Maggie", lang: "en", tz: "America/Los_Angeles", city: "Seattle", gender: "female", topics: ["Gardening", "Family", "Weather"] },
+  { name: "Shanti Devi", pref: "Shanti", lang: "hi", tz: "Asia/Kolkata", city: "Lucknow", gender: "female", topics: ["Faith & festivals", "Family", "Health"] },
+  { name: "Harold Brooks", pref: "Harold", lang: "en", tz: "America/New_York", city: "Columbus", gender: "male", topics: ["Memories", "Friends & neighbours", "Sleep"] },
+  { name: "Lakshmi Rao", pref: "Lakshmi", lang: "te,en", tz: "Asia/Kolkata", city: "Hyderabad", gender: "female", topics: ["Food & cooking", "Music", "Family"] },
+];
+
+async function seedPilotFamilies(db: PrismaClient, now: Date) {
+  await db.family.deleteMany({ where: { billingProvider: "pilot" } });
+  let seed = 7;
+  const rand = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+  for (const [n, p] of PILOTS.entries()) {
+    const family = await db.family.create({ data: { name: `${p.name.split(" ").slice(-1)[0]} family`, plan: ["care", "family", "premium"][n % 3], planStatus: "active", billingProvider: "pilot", createdAt: istDate(30, "09:00", now) } });
+    const elder = await db.elder.create({
+      data: { familyId: family.id, name: p.name, preferredName: p.pref, gender: p.gender, languages: p.lang, timezone: p.tz, city: p.city,
+              screenToken: crypto.randomUUID(), consentStatus: "granted", consentAt: istDate(28, "10:00", now), consentChannel: "phone" },
+    });
+    const med = await db.medicine.create({ data: { elderId: elder.id, name: "Metformin", dosage: "500 mg", times: "08:00,20:00" } });
+    const logs = [], metrics = [];
+    for (let ago = 27; ago >= 1; ago--) {
+      for (const t of ["08:00", "20:00"]) {
+        const status = rand() < 0.08 ? "missed" : "taken";
+        logs.push({ elderId: elder.id, medicineId: med.id, scheduledFor: istDate(ago, t, now), status, confirmedAt: status === "taken" ? istDate(ago, t, now) : null, source: "phone" });
+      }
+      const answered = rand() > 0.07;
+      const started = istDate(ago, "10:00", now);
+      await db.phoneCall.create({ data: { elderId: elder.id, direction: "outbound", reason: "checkin", status: answered ? "completed" : "no-answer", scheduledFor: started, attempt: answered ? 1 : 3, createdAt: started } });
+      if (!answered) continue;
+      const turns = 6 + Math.floor(rand() * 10);
+      const mood = rand() < 0.12 ? 2 : rand() < 0.4 ? 3 : rand() < 0.85 ? 4 : 5;
+      const topics = [p.topics[ago % 3], p.topics[(ago + 1) % 3]];
+      await db.conversation.create({
+        data: { elderId: elder.id, channel: rand() < 0.75 ? "phone" : "screen", startedAt: started, endedAt: new Date(started.getTime() + turns * 32000),
+                durationSec: turns * 32, language: p.lang.split(",")[0], languagesUsed: p.lang, summary: `${p.pref} talked about ${topics.join(" and ").toLowerCase()}.`,
+                mood, moodLabel: ["", "Very low", "Low", "Okay", "Good", "Very good"][mood], topics: JSON.stringify(topics), processed: true, turnCount: turns,
+                avgFirstAudioMs: 650 + Math.floor(rand() * 500), transcript: "[]", createdAt: started },
+      });
+      for (let k = 0; k < Math.min(turns, 6); k++) {
+        metrics.push({ elderId: elder.id, channel: rand() < 0.75 ? "phone" : "screen", firstAudioMs: 560 + Math.floor(rand() * 700), asrProvider: p.lang.startsWith("en") || p.lang === "es" ? "deepgram" : "sarvam", ttsProvider: p.lang.startsWith("en") || p.lang === "es" ? "cartesia" : "sarvam", language: p.lang.split(",")[0], createdAt: started });
+      }
+      if (mood <= 2) await db.alert.create({ data: { elderId: elder.id, severity: "concerning", category: "low_mood", title: "Low mood", status: "resolved", createdAt: started, resolvedAt: started } });
+    }
+    if (n === 1) await db.alert.create({ data: { elderId: elder.id, severity: "urgent", category: "scam", title: "Possible scam: OTP request", status: "resolved", createdAt: istDate(9, "11:00", now), resolvedAt: istDate(9, "11:20", now) } });
+    if (n === 4) await db.alert.create({ data: { elderId: elder.id, severity: "urgent", category: "fall", title: "Mentioned a fall", status: "resolved", createdAt: istDate(15, "10:04", now), resolvedAt: istDate(15, "10:40", now) } });
+    await db.medicineLog.createMany({ data: logs });
+    await db.turnMetric.createMany({ data: metrics });
+  }
 }

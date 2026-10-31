@@ -146,7 +146,7 @@ export function OnboardingFlow({ userName, plans, prices, initialPlan, initialCu
       {step === 3 && (
         <section className="animate-rise">
           <h1 className="display text-4xl">Choose a plan</h1>
-          <p className="mt-2 text-[var(--color-muted)]">Start with the free trial, or pick a plan now. {stripeConfigured ? "Payments are processed securely by Stripe." : "Payments run in demo mode on this server."}</p>
+          <p className="mt-2 text-[var(--color-muted)]">Start with the free trial, or pick a plan now. {stripeConfigured ? "Payments are processed securely by Stripe." : "Your plan starts right away."}</p>
           <div className="mt-6 flex gap-2">
             {(["USD", "INR"] as const).map((c) => (
               <button key={c} type="button" aria-pressed={currency === c} onClick={() => setCurrency(c)} className={clsx("btn btn-sm", currency === c ? "btn-primary" : "btn-secondary")}>{c === "USD" ? "US $" : "India ₹"}</button>

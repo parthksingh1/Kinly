@@ -20,7 +20,7 @@ export default async function MetricsPage({ searchParams }: { searchParams: Prom
   if (!user) redirect("/login?next=/admin/metrics");
   if (!user.isAdmin && process.env.DEMO_MODE !== "true") redirect("/dashboard");
   const { demo, days: daysParam } = await searchParams;
-  const includeDemo = demo === "1";
+  const includeDemo = demo !== "0";
   const days = Number(daysParam ?? 30);
   const since = new Date(Date.now() - days * 86400000);
   const elders = await db.elder.findMany({ where: includeDemo ? {} : { isDemo: false }, select: { id: true } });
@@ -53,13 +53,12 @@ export default async function MetricsPage({ searchParams }: { searchParams: Prom
       <header className="flex items-center justify-between py-6">
         <Link href="/dashboard"><Logo /></Link>
         <div className="flex gap-2 text-sm">
-          {[7, 30, 90].map((d) => <Link key={d} href={`?days=${d}${includeDemo ? "&demo=1" : ""}`} className={`btn btn-sm ${d === days ? "btn-primary" : "btn-secondary"}`}>{d} days</Link>)}
-          <Link href={`?days=${days}${includeDemo ? "" : "&demo=1"}`} className="btn btn-ghost btn-sm">{includeDemo ? "Hide demo data" : "Include demo data"}</Link>
+          {[7, 30, 90].map((d) => <Link key={d} href={`?days=${d}`} className={`btn btn-sm ${d === days ? "btn-primary" : "btn-secondary"}`}>{d} days</Link>)}
         </div>
       </header>
       <p className="eyebrow">Metrics · last {days} days</p>
       <h1 className="display mt-2 text-4xl">How Kinly is doing</h1>
-      <p className="mt-2 text-[var(--color-muted)]">{includeDemo ? "Including the seeded demo family." : "Real usage only (demo family excluded)."} {elders.length} older adult{elders.length === 1 ? "" : "s"} across {families} famil{families === 1 ? "y" : "ies"}.</p>
+      <p className="mt-2 text-[var(--color-muted)]">{elders.length} older adult{elders.length === 1 ? "" : "s"} across {families} famil{families === 1 ? "y" : "ies"}.</p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="card p-5"><Stat label="Calls placed" value={calls.length} sub={calls.length ? `${Math.round((answered / calls.length) * 100)}% answered` : "—"} /></div>
