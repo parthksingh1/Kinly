@@ -80,3 +80,4 @@ mcp_servers.json
 /data/
 conf.yaml.backup
 *.db-journal
+/demo-video/
