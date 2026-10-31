@@ -89,7 +89,7 @@ class RouterASR(ASRInterface):
         order = [("sarvam", self.sarvam), ("deepgram", self.deepgram)]
         if not indian_first:
             order.reverse()
-        dg_langs = [l for l in langs if l not in ("od", "pa")] or None
+        dg_langs = [lang for lang in langs if lang not in ("od", "pa")] or None
         for name, engine in order:
             if not engine:
                 continue

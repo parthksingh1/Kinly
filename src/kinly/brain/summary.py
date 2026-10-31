@@ -185,8 +185,8 @@ async def update_daily_summary(elder: dict, day: Optional[datetime] = None) -> d
         [elder["id"], start, end],
     )
     logs = db.query("SELECT status FROM medicine_logs WHERE elderId = ? AND scheduledFor >= ? AND scheduledFor < ?", [elder["id"], start, end])
-    taken = sum(1 for l in logs if l["status"] == "taken")
-    missed = sum(1 for l in logs if l["status"] == "missed")
+    taken = sum(1 for log in logs if log["status"] == "taken")
+    missed = sum(1 for log in logs if log["status"] == "missed")
     moods = [c["mood"] for c in convos if c["mood"]]
     mood = round(sum(moods) / len(moods)) if moods else None
     topics: list[str] = []

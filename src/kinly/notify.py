@@ -109,7 +109,7 @@ class Notifier:
         if alert["severity"] == "urgent" and alert["category"] != "scam":
             lines.append(f"Please call {name} now. If you cannot reach them, contact local emergency services ({elder.get('emergencyNumber') or '112'}).")
         lines.append(f"View and acknowledge: {settings.family_app_url}/dashboard/alerts")
-        await self.send_family(elder, subject, "\n".join(l for l in lines if l), urgent=alert["severity"] == "urgent")
+        await self.send_family(elder, subject, "\n".join(line for line in lines if line), urgent=alert["severity"] == "urgent")
         db.update("alerts", alert["id"], {"notifiedAt": db.now_utc()})
 
     async def family_message(self, elder: dict, subject: str, body: str) -> None:
