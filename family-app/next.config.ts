@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["@prisma/client", "bcryptjs"],
   eslint: { ignoreDuringBuilds: true },
+  devIndicators: false,
 };
 
 export default nextConfig;

@@ -163,8 +163,8 @@ export function ScreenApp({ token, initial }: { token: string; initial: ScreenSt
             <CompanionFace mouth={voice.mouth} expression={voice.expression} speaking={voice.status === "speaking"} size={340} />
           )}
           <div className="mt-6 min-h-[7.5rem] max-w-2xl">
-            <p className="text-[1.9rem] font-bold leading-snug sm:text-[2.2rem]">{voice.kinlyText || (state.elder.consentStatus === "granted" ? greetingFor(lang, state.elder.preferredName) : "")}</p>
-            {voice.elderText && <p className="mt-3 text-2xl text-[var(--color-ink-soft)]">“{voice.elderText}”</p>}
+            <p data-kinly-caption className="text-[1.9rem] font-bold leading-snug sm:text-[2.2rem]">{voice.kinlyText || (state.elder.consentStatus === "granted" ? greetingFor(lang, state.elder.preferredName) : "")}</p>
+            {voice.elderText && <p data-elder-caption className="mt-3 text-2xl text-[var(--color-ink-soft)]">“{voice.elderText}”</p>}
           </div>
           <button onClick={() => (voice.active ? voice.stop() : voice.start())} disabled={voice.status === "connecting" || voice.status === "offline"}
             className={clsx("mt-6 flex min-h-24 items-center gap-4 rounded-full px-12 text-[1.9rem] font-bold shadow-[var(--shadow-lift)] transition-transform active:scale-[0.98] disabled:opacity-50",
@@ -314,7 +314,7 @@ function StatusPill({ status, w }: { status: VoiceStatus; w: Words }) {
   const label = { connecting: w.connecting, ready: w.ready, listening: w.listening, hearing: w.hearing, thinking: w.thinking, speaking: w.speaking, offline: w.offline }[status];
   const live = status === "listening" || status === "hearing";
   return (
-    <span className={clsx("flex items-center gap-2.5 rounded-full px-4 py-2 text-xl font-bold", status === "offline" ? "bg-[var(--color-danger-soft)] text-[var(--color-danger)]" : "bg-white/80")} aria-live="polite">
+    <span data-status={status} className={clsx("flex items-center gap-2.5 rounded-full px-4 py-2 text-xl font-bold", status === "offline" ? "bg-[var(--color-danger-soft)] text-[var(--color-danger)]" : "bg-white/80")} aria-live="polite">
       <span className={clsx("h-3.5 w-3.5 rounded-full", live ? "animate-pulse bg-[#2f9e62]" : status === "speaking" ? "bg-[var(--color-evergreen)]" : status === "thinking" ? "animate-pulse bg-[var(--color-sun)]" : "bg-[var(--color-faint)]")} aria-hidden="true" />
       {label}
     </span>

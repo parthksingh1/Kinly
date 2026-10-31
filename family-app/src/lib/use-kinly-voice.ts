@@ -49,7 +49,15 @@ export function useKinlyVoice(screenToken: string, onMessage: (msg: Record<strin
   onMessageRef.current = onMessage;
   const langRef = useRef("en");
 
-  const set = (s: VoiceStatus) => { statusRef.current = s; setStatus(s); };
+  const set = (s: VoiceStatus) => {
+    statusRef.current = s;
+    setStatus(s);
+    // Browser speech recognition must not hear Kinly's own voice: pause it while Kinly thinks/speaks.
+    const r = recog.current;
+    if (!r) return;
+    if (s === "listening") { try { r.start(); } catch {} }
+    else if (s === "speaking" || s === "thinking") { try { r.abort(); } catch {} }
+  };
   const send = useCallback((m: object) => { if (ws.current?.readyState === WebSocket.OPEN) ws.current.send(JSON.stringify(m)); }, []);
 
   // ---------------------------------------------------------- playback
