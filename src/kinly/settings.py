@@ -19,7 +19,13 @@ def _load_dotenv(path: Path) -> None:
             continue
         key, value = line.split("=", 1)
         key = key.strip()
-        value = value.strip().strip('"').strip("'")
+        value = value.strip()
+        if value[:1] in ('"', "'"):
+            value = value[1:].split(value[0], 1)[0]
+        else:
+            value = value.split(" #", 1)[0].split("\t#", 1)[0].strip()
+            if value.startswith("#"):
+                value = ""
         os.environ.setdefault(key, value)
 
 

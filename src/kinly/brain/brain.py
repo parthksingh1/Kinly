@@ -360,8 +360,10 @@ class KinlyBrain:
         followup = ""
         if followups:
             f = followups[0]["content"]
-            followup = re.sub(rf"^{re.escape(session.name)}\s+(said\s+)?", "", f, flags=re.I)
-            followup = followup.replace("their ", "your ").replace(" was ", " was ")
+            # "Kamala said her right knee was aching" -> "your right knee was aching"
+            followup = re.sub(rf"^{re.escape(session.name)}\s+(said\s+(that\s+)?)?", "", f, flags=re.I)
+            followup = re.sub(r"\b(her|his|their)\b", "your", followup, count=1)
+            followup = re.sub(rf"\b{re.escape(session.name)}'s\b", "your", followup)
         med = due[0]["medicineName"] if due else (repo.medicines(session.elder_id)[0]["name"] if repo.medicines(session.elder_id) else "")
         return offline.reply(
             stage, session.language, session.name, user_text, repo.elder_now(session.elder).hour,

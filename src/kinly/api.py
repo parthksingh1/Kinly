@@ -257,6 +257,16 @@ def init_kinly_routes() -> APIRouter:
             raise HTTPException(400, str(e))
         return Response(content=audio, media_type="audio/wav")
 
+    @internal.post("/notify")
+    async def notify_family(request: Request):
+        """Family app -> WhatsApp/email to the family (e.g. 'Kamala wants to video call you')."""
+        from .notify import notifier
+
+        body = await request.json()
+        elder = _elder(body.get("elderId", ""))
+        sent = await notifier.send_family(elder, body.get("subject", "Kinly"), body.get("body", ""), urgent=bool(body.get("urgent")))
+        return {"deliveries": sent}
+
     @internal.post("/scheduler/tick")
     async def tick():
         await scheduler.tick()

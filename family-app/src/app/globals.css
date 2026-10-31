@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/*
+  Kinly design tokens: "linen and evergreen".
+  Warm paper surfaces, deep ink text, an evergreen primary and a clay accent used sparingly.
+  Status colours always come with an icon or label, never colour alone.
+*/
+@theme {
+  --color-linen: #f6f2ea;
+  --color-paper: #fbf9f5;
+  --color-surface: #ffffff;
+  --color-ink: #1a2421;
+  --color-ink-soft: #3c4744;
+  --color-muted: #5f6b67;
+  --color-faint: #8a9490;
+  --color-line: #e5dfd3;
+  --color-line-strong: #d3cbbb;
+
+  --color-evergreen: #1d5547;
+  --color-evergreen-deep: #133d33;
+  --color-evergreen-soft: #e2eee8;
+  --color-evergreen-tint: #f0f6f2;
+  --color-clay: #b2603a;
+  --color-clay-soft: #f5e6dc;
+  --color-sun: #c98a1b;
+  --color-sun-soft: #faf0d9;
+  --color-danger: #b42318;
+  --color-danger-soft: #fbe8e6;
+  --color-sky: #2f6690;
+  --color-sky-soft: #e5eef5;
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --font-elder: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-card: 18px;
+  --shadow-card: 0 1px 2px rgba(26, 36, 33, 0.04), 0 4px 16px -6px rgba(26, 36, 33, 0.08);
+  --shadow-lift: 0 2px 4px rgba(26, 36, 33, 0.05), 0 18px 40px -16px rgba(26, 36, 33, 0.22);
+
+  --animate-breathe: breathe 5.5s ease-in-out infinite;
+  --animate-ring: ring 1.6s ease-out infinite;
+  --animate-rise: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.025); }
+  }
+  @keyframes ring {
+    0% { transform: scale(0.9); opacity: 0.55; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--color-linen);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+}
+
+::selection {
+  background: var(--color-evergreen-soft);
+  color: var(--color-evergreen-deep);
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-evergreen) 55%, transparent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@layer components {
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+  .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .display {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 1.15rem;
+    border-radius: 999px;
+    font-weight: 550;
+    font-size: 0.95rem;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, transform 120ms ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--color-evergreen); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--color-evergreen-deep); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-ink); border: 1px solid var(--color-line-strong); }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--color-ink-soft); }
+  .btn-ghost { color: var(--color-ink-soft); }
+  .btn-ghost:hover:not(:disabled) { background: color-mix(in srgb, var(--color-ink) 5%, transparent); }
+  .btn-danger { background: var(--color-danger); color: #fff; }
+  .btn-danger:hover:not(:disabled) { background: #8f1b12; }
+  .btn-sm { min-height: 36px; padding: 0 0.85rem; font-size: 0.85rem; }
+
+  .field-label { display: block; font-size: 0.85rem; font-weight: 560; color: var(--color-ink-soft); margin-bottom: 0.4rem; }
+  .field-help { font-size: 0.8rem; color: var(--color-muted); margin-top: 0.35rem; }
+  .input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.6rem 0.85rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-size: 0.95rem;
+    transition: border-color 140ms ease, box-shadow 140ms ease;
+  }
+  .input:focus { outline: none; border-color: var(--color-evergreen); box-shadow: 0 0 0 3px var(--color-evergreen-soft); }
+  .input::placeholder { color: var(--color-faint); }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px;
+    border: 1px solid transparent; white-space: nowrap;
+  }
+  .chip-urgent { background: var(--color-danger-soft); color: var(--color-danger); border-color: #f3c5c0; }
+  .chip-concerning { background: var(--color-sun-soft); color: #8a5a07; border-color: #efd9a8; }
+  .chip-ok { background: var(--color-evergreen-soft); color: var(--color-evergreen-deep); border-color: #c8ddd3; }
+  .chip-neutral { background: #f1ede5; color: var(--color-ink-soft); border-color: var(--color-line); }
+  .chip-info { background: var(--color-sky-soft); color: var(--color-sky); border-color: #c9dbe9; }
+
+  .divider { height: 1px; background: var(--color-line); }
+  .tabular { font-variant-numeric: tabular-nums; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  body { background: #fff; }
+  .no-print { display: none !important; }
+}
