@@ -13,8 +13,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <p className="mb-8 mt-2 text-[var(--color-muted)]">See how your family is doing today.</p>
       {demoMode && (
         <form action={demoLogin} className="mb-6">
-          <button className={`btn w-full ${demo ? "btn-primary" : "btn-secondary"}`}>Explore the demo family (Kamala)</button>
-          <p className="field-help text-center">Demo login: arjun@kinly.demo / kinly-demo</p>
+          <button className={`btn w-full ${demo ? "btn-primary" : "btn-secondary"}`}>Explore the family (Kamala)</button>
+          <p className="field-help text-center">Login: arjun@kinly.demo / kinly-demo</p>
         </form>
       )}
       <LoginForm next={next} />
