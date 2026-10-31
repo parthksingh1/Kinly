@@ -11,7 +11,7 @@ is the unmodified upstream import, and each later commit is one focused change.
 |---|---|
 | Server | FastAPI + WebSocket server (`server.py`, `routes.py`, `websocket_handler.py`); per-connection `ServiceContext` dependency container |
 | Voice loop | Hands-free voice chat with voice interruption: mic audio → (optional VAD) → ASR → agent → sentence-by-sentence TTS → ordered audio payloads with a per-20 ms volume envelope for lip sync |
-| Engines | Factory pattern for ASR (Whisper variants, Sherpa-ONNX, FunASR, Azure, Groq), TTS (Edge, Azure, Cartesia, ElevenLabs, MeloTTS, CosyVoice, GPT-SoVITS…), VAD (Silero), LLMs (OpenAI-compatible, Claude, Ollama, llama.cpp) |
+| Engines | Factory pattern for ASR (Whisper variants, Sherpa-ONNX, FunASR, Azure, Groq), TTS (Edge, Azure, Cartesia, ElevenLabs, MeloTTS, CosyVoice, GPT-SoVITS…), VAD (Silero), LLMs (OpenAI-compatible, Ollama, llama.cpp and others) |
 | Agent | `BasicMemoryAgent` with streaming, sentence segmentation, expression keywords, MCP tool calling |
 | Avatar | Live2D models with expressions mapped from `[emotion]` keywords, lip sync from the volume envelope |
 | Config | Typed pydantic config (`config_manager/`), YAML templates, upgrade system |
